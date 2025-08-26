@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Verification</title>
+    <title>CINEFLIX Ticket Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
-        /* New "Cyberpunk" Color Palette */
         :root {
-            --background: 240 10% 4%; /* Near Black */
+            --background: 240 10% 4%;
             --card: 240 10% 9%;
-            --border: 57 97% 50%;  /* Cyber Yellow Border */
+            --border: 57 97% 50%;  
             --input: 240 10% 12%;
             --foreground: 240 10% 95%;
             --muted-foreground: 240 10% 65%;
-            --accent: 57 97% 50%;     /* Cyber Yellow */
+            --accent: 57 97% 50%;  
             --accent-foreground: 240 10% 4%;
-            --danger: 327 94% 65%;    /* Cyber Magenta */
-            --success: 137 84% 50%;   /* Neon Green */
-            --warning: 38 92% 50%;    /* Bright Orange */
+            --danger: 327 94% 65%; 
+            --success: 137 84% 50%;
+            --warning: 38 92% 50%;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: hsl(var(--background));
             color: hsl(var(--foreground));
         }
@@ -61,7 +60,7 @@
         <div id="scanContent">
             <div class="text-center space-y-4">
                  <button id="requestCameraBtn" class="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm10.5 5.5a1 1 0 00-2 0v2a1 1 0 002 0v-2zM4 8a1 1 0 011-1h1.5a1 1 0 010 2H5a1 1 0 01-1-1zm3 0a1 1 0 011-1h1.5a1 1 0 010 2H8a1 1 0 01-1-1zm5 4a1 1 0 00-1 1v1.5a1 1 0 002 0V13a1 1 0 00-1-1zm-5-4a1 1 0 011-1h1.5a1 1 0 010 2H8a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                    <ion-icon class="text-lg" name="barcode-outline"></ion-icon>
                     Start Camera & Scan
                 </button>
                 <div id="video-container" class="w-full aspect-square mx-auto rounded-lg hidden">
@@ -91,6 +90,8 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
     <script>
         const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn6gOJE2QjtJ-aE4ym94HcbPhqcReV0iFMpjhTlEsAwbcyqW1Exm6n4waQpVncAtxN/exec';
