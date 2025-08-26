@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* New "Cyberpunk" Color Palette */
+        :root {
+            --background: 240 10% 4%; /* Near Black */
+            --card: 240 10% 9%;
+            --border: 57 97% 50%;  /* Cyber Yellow Border */
+            --input: 240 10% 12%;
+            --foreground: 240 10% 95%;
+            --muted-foreground: 240 10% 65%;
+            --accent: 57 97% 50%;     /* Cyber Yellow */
+            --accent-foreground: 240 10% 4%;
+            --danger: 327 94% 65%;    /* Cyber Magenta */
+            --success: 137 84% 50%;   /* Neon Green */
+            --warning: 38 92% 50%;    /* Bright Orange */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+        
+        #video-container {
+            position: relative;
+            border: 2px solid hsl(var(--border));
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .result-valid { border-color: hsl(var(--success)); }
+        .result-warning { border-color: hsl(var(--warning)); }
+        .result-danger { border-color: hsl(var(--danger)); }
+
+        .tab-button.active {
+            background-color: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="bg-card border border-neutral-800 p-8 rounded-lg shadow-2xl max-w-md w-full text-foreground" style="box-shadow: 0 0 25px hsla(var(--accent), 0.1);">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-accent">Ticket Verification</h1>
+            <p class="text-sm text-muted-foreground mt-2">Scan a ticket or enter the ID below.</p>
+        </div>
+
+        <div class="flex bg-input p-1 rounded-lg mb-6">
+            <button id="tabScan" class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Scan QR</button>
+            <button id="tabManual" class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Enter ID</button>
+        </div>
+
+        <div id="scanContent">
+            <div class="text-center space-y-4">
+                 <button id="requestCameraBtn" class="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm10.5 5.5a1 1 0 00-2 0v2a1 1 0 002 0v-2zM4 8a1 1 0 011-1h1.5a1 1 0 010 2H5a1 1 0 01-1-1zm3 0a1 1 0 011-1h1.5a1 1 0 010 2H8a1 1 0 01-1-1zm5 4a1 1 0 00-1 1v1.5a1 1 0 002 0V13a1 1 0 00-1-1zm-5-4a1 1 0 011-1h1.5a1 1 0 010 2H8a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                    Start Camera & Scan
+                </button>
+                <div id="video-container" class="w-full aspect-square mx-auto rounded-lg hidden">
+                    <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
+                </div>
+                 <button id="stopScanBtn" class="hidden w-full py-2 px-4 border border-border rounded-md shadow-sm text-sm font-medium text-muted-foreground bg-input hover:bg-border transition">
+                    Stop Scanning
+                </button>
+            </div>
+        </div>
+
+        <div id="manualContent" class="hidden">
+            <form id="verificationForm" class="space-y-4">
+                <div>
+                    <label for="bookingId" class="block text-sm font-medium text-muted-foreground">Booking ID</label>
+                    <input type="text" id="bookingId" name="bookingId" required placeholder="e.g., CAPS1234"
+                           class="mt-1 block w-full px-3 py-2 bg-input border border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent sm:text-sm">
+                </div>
+                <button type="submit" id="verifyBtn" class="w-full flex justify-center py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
+                    Verify Ticket
+                </button>
+            </form>
+        </div>
+
+        <div id="messageBox" class="mt-4 text-center text-sm min-h-[20px]"></div>
+        <div id="resultContainer" class="mt-4 hidden"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <script>
+        const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn6gOJE2QjtJ-aE4ym94HcbPhqcReV0iFMpjhTlEsAwbcyqW1Exm6n4waQpVncAtxN/exec';
+
+        const dom = {
+            verificationForm: document.getElementById('verificationForm'),
+            bookingIdInput: document.getElementById('bookingId'),
+            verifyBtn: document.getElementById('verifyBtn'),
+            resultContainer: document.getElementById('resultContainer'),
+            messageBox: document.getElementById('messageBox'),
+            tabScan: document.getElementById('tabScan'),
+            tabManual: document.getElementById('tabManual'),
+            scanContent: document.getElementById('scanContent'),
+            manualContent: document.getElementById('manualContent'),
+            videoContainer: document.getElementById('video-container'),
+            video: document.getElementById('video'),
+            requestCameraBtn: document.getElementById('requestCameraBtn'),
+            stopScanBtn: document.getElementById('stopScanBtn'),
+        };
+
+        let stream = null;
+        let scanInterval = null;
+
+        const showMessage = (message, type = 'info') => {
+            const colors = { success: 'text-green-400', error: 'text-red-400', info: 'text-muted-foreground', warning: 'text-yellow-400' };
+            dom.messageBox.className = `mt-4 text-center text-sm min-h-[20px] ${colors[type]}`;
+            dom.messageBox.textContent = message;
+        };
+
+        const displayResult = (status, details) => {
+            const statuses = {
+                valid: { title: 'Ticket Valid', icon: `<svg class="w-16 h-16" style="color:hsl(var(--success))" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`, cardClass: 'result-valid', redeemable: true },
+                redeemed: { title: 'Already Redeemed', icon: `<svg class="w-16 h-16" style="color:hsl(var(--warning))" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`, cardClass: 'result-warning', redeemable: false },
+                invalid: { title: 'Ticket Invalid', icon: `<svg class="w-16 h-16" style="color:hsl(var(--danger))" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`, cardClass: 'result-danger', redeemable: false },
+            };
+            const currentState = statuses[status];
+            dom.resultContainer.className = `mt-4 p-6 bg-input border-2 rounded-lg text-center ${currentState.cardClass}`;
+            let html = `<div class="flex justify-center mb-4">${currentState.icon}</div><h3 class="text-xl font-bold mb-2">${currentState.title}</h3><div class="space-y-1 text-sm text-muted-foreground">`;
+            for (const [key, value] of Object.entries(details)) { html += `<p><strong class="text-foreground">${key}:</strong> ${value}</p>`; }
+            html += `</div>`;
+            if (currentState.redeemable) { html += `<button id="redeemBtn" class="mt-6 w-full py-2.5 px-6 bg-danger text-white rounded-md hover:opacity-90 transition">Redeem Ticket</button>`; }
+            dom.resultContainer.innerHTML = html;
+            dom.resultContainer.classList.remove('hidden');
+            if (currentState.redeemable) { document.getElementById('redeemBtn').addEventListener('click', handleRedemption); }
+        };
+        
+        const handleVerification = async (e) => {
+            if (e) e.preventDefault();
+            const bookingId = dom.bookingIdInput.value.trim();
+            if (!bookingId) { showMessage('Please enter a booking ID.', 'error'); return; }
+            await stopScanning();
+            dom.verifyBtn.disabled = true;
+            dom.verifyBtn.textContent = 'Verifying...';
+            dom.resultContainer.classList.add('hidden');
+            showMessage('Verifying ticket...', 'info');
+            try {
+                const response = await fetch(`${GOOGLE_APP_SCRIPT_URL}?action=verifyTicket&bookingId=${encodeURIComponent(bookingId)}`);
+                const result = await response.json();
+                if (result.success) {
+                    const details = { Email: result.email, Seats: result.seats, Status: result.status };
+                    sessionStorage.setItem('lastValidTicket', JSON.stringify(details)); // Store details for redemption
+                    if (result.status === 'Redeemed') { displayResult('redeemed', details); } else { displayResult('valid', details); }
+                } else { displayResult('invalid', { "Booking ID": bookingId, "Reason": result.message }); }
+            } catch (error) { showMessage(`Verification failed: ${error.message}.`, 'error');
+            } finally { dom.verifyBtn.disabled = false; dom.verifyBtn.textContent = 'Verify Ticket'; }
+        };
+
+        const handleRedemption = async () => {
+            const bookingId = dom.bookingIdInput.value.trim();
+            const redeemBtn = document.getElementById('redeemBtn');
+            redeemBtn.disabled = true;
+            redeemBtn.textContent = 'Redeeming...';
+            try {
+                const response = await fetch(`${GOOGLE_APP_SCRIPT_URL}?action=redeemTicket&bookingId=${encodeURIComponent(bookingId)}`);
+                const result = await response.json();
+                if (result.success) {
+                    showMessage('Ticket redeemed successfully!', 'success');
+                    const details = { ...JSON.parse(sessionStorage.getItem('lastValidTicket')), Status: 'Redeemed' };
+                    displayResult('redeemed', details);
+                } else { showMessage(result.message, 'error'); redeemBtn.disabled = false; redeemBtn.textContent = 'Redeem Ticket'; }
+            } catch (error) { showMessage(`Redemption failed: ${error.message}.`, 'error'); }
+        };
+        
+        const tick = () => {
+            if (dom.video.readyState === dom.video.HAVE_ENOUGH_DATA) {
+                const canvas = document.createElement('canvas');
+                canvas.height = dom.video.videoHeight;
+                canvas.width = dom.video.videoWidth;
+                const context = canvas.getContext('2d');
+                context.drawImage(dom.video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    const idMatch = code.data.match(/Booking ID: ([a-zA-Z0-9-]+)/);
+                    if (idMatch && idMatch[1]) {
+                        dom.bookingIdInput.value = idMatch[1];
+                        stopScanning();
+                        handleVerification();
+                    }
+                }
+            }
+        };
+
+        const requestCameraAndStartScan = async () => {
+            dom.requestCameraBtn.classList.add('hidden');
+            showMessage('Requesting camera access...', 'info');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                dom.video.srcObject = stream;
+                dom.videoContainer.classList.remove('hidden');
+                dom.stopScanBtn.classList.remove('hidden');
+                showMessage('Point camera at a QR code...', 'info');
+                scanInterval = setInterval(tick, 200); // Scan 5 times a second
+            } catch (err) {
+                showMessage('Camera access denied. Please enable it in browser settings.', 'error');
+                dom.requestCameraBtn.classList.remove('hidden');
+            }
+        };
+        
+        const stopScanning = () => {
+            if (scanInterval) clearInterval(scanInterval);
+            scanInterval = null;
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            dom.videoContainer.classList.add('hidden');
+            dom.stopScanBtn.classList.add('hidden');
+            dom.requestCameraBtn.classList.remove('hidden');
+        };
+
+        dom.tabScan.addEventListener('click', () => {
+            stopScanning();
+            dom.scanContent.classList.remove('hidden');
+            dom.manualContent.classList.add('hidden');
+            dom.tabScan.classList.add('active');
+            dom.tabManual.classList.remove('active');
+            dom.resultContainer.classList.add('hidden');
+            showMessage('Click the button to start scanning.', 'info');
+        });
+
+        dom.tabManual.addEventListener('click', () => {
+            stopScanning();
+            dom.scanContent.classList.add('hidden');
+            dom.manualContent.classList.remove('hidden');
+            dom.tabScan.classList.remove('active');
+            dom.tabManual.classList.add('active');
+            dom.resultContainer.classList.add('hidden');
+            showMessage('Enter the Booking ID below.', 'info');
+        });
+
+        dom.requestCameraBtn.addEventListener('click', requestCameraAndStartScan);
+        dom.stopScanBtn.addEventListener('click', stopScanning);
+        dom.verificationForm.addEventListener('submit', handleVerification);
+
+        // Initial state
+        dom.tabManual.click();
+    </script>
+</body>
+</html>
