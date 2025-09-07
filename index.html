@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CINEFLIX Ticket Verification</title>
+    <title>EUNOIA Ticket Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --background: 240 10% 4%;
             --card: 240 10% 9%;
-            --border: 57 97% 50%;  
+            --border: 330 80% 60%;
             --input: 240 10% 12%;
             --foreground: 240 10% 95%;
             --muted-foreground: 240 10% 65%;
-            --accent: 57 97% 50%;  
+            --accent: 330 80% 60%;
             --accent-foreground: 240 10% 4%;
-            --danger: 327 94% 65%; 
+            --danger: 327 94% 65%;
             --success: 137 84% 50%;
             --warning: 38 92% 50%;
         }
@@ -26,7 +29,7 @@
             background-color: hsl(var(--background));
             color: hsl(var(--foreground));
         }
-        
+
         #video-container {
             position: relative;
             border: 2px solid hsl(var(--border));
@@ -34,9 +37,18 @@
             overflow: hidden;
         }
 
-        .result-valid { border-color: hsl(var(--success)); }
-        .result-warning { border-color: hsl(var(--warning)); }
-        .result-danger { border-color: hsl(var(--danger)); }
+        /* Classes for modal border colors */
+        .result-valid {
+            border-color: hsl(var(--success));
+        }
+
+        .result-warning {
+            border-color: hsl(var(--warning));
+        }
+
+        .result-danger {
+            border-color: hsl(var(--danger));
+        }
 
         .tab-button.active {
             background-color: hsl(var(--accent));
@@ -45,28 +57,36 @@
         }
     </style>
 </head>
+
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
-    <div class="bg-card border border-neutral-800 p-8 rounded-lg shadow-2xl max-w-md w-full text-foreground" style="box-shadow: 0 0 25px hsla(var(--accent), 0.1);">
+    <div class="bg-card border border-neutral-800 p-8 rounded-lg shadow-2xl max-w-md w-full text-foreground"
+        style="box-shadow: 0 0 25px hsla(var(--accent), 0.1);">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-accent">Ticket Verification</h1>
             <p class="text-sm text-muted-foreground mt-2">Scan a ticket or enter the ID below.</p>
         </div>
 
         <div class="flex bg-input p-1 rounded-lg mb-6">
-            <button id="tabScan" class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Scan QR</button>
-            <button id="tabManual" class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Enter ID</button>
+            <button id="tabScan"
+                class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Scan
+                QR</button>
+            <button id="tabManual"
+                class="tab-button w-1/2 p-2 rounded-md text-sm font-semibold transition-colors duration-300">Enter
+                ID</button>
         </div>
 
         <div id="scanContent">
             <div class="text-center space-y-4">
-                 <button id="requestCameraBtn" class="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
+                <button id="requestCameraBtn"
+                    class="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
                     <ion-icon class="text-lg" name="barcode-outline"></ion-icon>
                     Start Camera & Scan
                 </button>
                 <div id="video-container" class="w-full aspect-square mx-auto rounded-lg hidden">
                     <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
                 </div>
-                 <button id="stopScanBtn" class="hidden w-full py-2 px-4 border border-border rounded-md shadow-sm text-sm font-medium text-muted-foreground bg-input hover:bg-border transition">
+                <button id="stopScanBtn"
+                    class="hidden w-full py-2 px-4 border border-border rounded-md shadow-sm text-sm font-medium text-muted-foreground bg-input hover:bg-border transition">
                     Stop Scanning
                 </button>
             </div>
@@ -77,18 +97,35 @@
                 <div>
                     <label for="bookingId" class="block text-sm font-medium text-muted-foreground">Booking ID</label>
                     <input type="text" id="bookingId" name="bookingId" required placeholder="e.g., CAPS1234"
-                           class="mt-1 block w-full px-3 py-2 bg-input border border-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent sm:text-sm">
+                        class="mt-1 block w-full px-3 py-2 bg-input text-black rounded-md outline-none focus:outline-2 focus:outline-pink-600 hover:outline-pink-500 transition-all sm:text-sm">
                 </div>
-                <button type="submit" id="verifyBtn" class="w-full flex justify-center py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
+                <button type="submit" id="verifyBtn"
+                    class="w-full flex justify-center py-2.5 px-4 rounded-md shadow-sm text-sm font-bold text-accent-foreground bg-accent hover:opacity-90 transition">
                     Verify Ticket
                 </button>
             </form>
         </div>
 
         <div id="messageBox" class="mt-4 text-center text-sm min-h-[20px]"></div>
-        <div id="resultContainer" class="mt-4 hidden"></div>
     </div>
-    
+
+    <footer class="text-center text-sm text-muted-foreground p-4 mt-8">
+        Copyright &copy; 2025 EUNOIA. All Rights Reserved.
+    </footer>
+
+    <div id="resultModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+        <div id="modalCard" class="bg-card/70 backdrop-blur-sm border-2 rounded-lg text-center p-6 w-full max-w-sm relative">
+            <button id="closeModalBtn"
+                class="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -100,7 +137,6 @@
             verificationForm: document.getElementById('verificationForm'),
             bookingIdInput: document.getElementById('bookingId'),
             verifyBtn: document.getElementById('verifyBtn'),
-            resultContainer: document.getElementById('resultContainer'),
             messageBox: document.getElementById('messageBox'),
             tabScan: document.getElementById('tabScan'),
             tabManual: document.getElementById('tabManual'),
@@ -110,6 +146,11 @@
             video: document.getElementById('video'),
             requestCameraBtn: document.getElementById('requestCameraBtn'),
             stopScanBtn: document.getElementById('stopScanBtn'),
+            // Modal elements
+            resultModal: document.getElementById('resultModal'),
+            modalCard: document.getElementById('modalCard'),
+            modalBody: document.getElementById('modalBody'),
+            closeModalBtn: document.getElementById('closeModalBtn'),
         };
 
         let stream = null;
@@ -121,6 +162,11 @@
             dom.messageBox.textContent = message;
         };
 
+        const closeModal = () => {
+            dom.resultModal.classList.add('hidden');
+            dom.modalBody.innerHTML = ''; // Clear content
+        };
+
         const displayResult = (status, details) => {
             const statuses = {
                 valid: { title: 'Ticket Valid', icon: `<svg class="w-16 h-16" style="color:hsl(var(--success))" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`, cardClass: 'result-valid', redeemable: true },
@@ -128,39 +174,44 @@
                 invalid: { title: 'Ticket Invalid', icon: `<svg class="w-16 h-16" style="color:hsl(var(--danger))" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`, cardClass: 'result-danger', redeemable: false },
             };
             const currentState = statuses[status];
-            dom.resultContainer.className = `mt-4 p-6 bg-input border-2 rounded-lg text-center ${currentState.cardClass}`;
+
+            dom.modalCard.className = `bg-card/70 backdrop-blur-sm border-2 rounded-lg text-center p-6 w-full max-w-sm relative ${currentState.cardClass}`;
+
             let html = `<div class="flex justify-center mb-4">${currentState.icon}</div><h3 class="text-xl font-bold mb-2">${currentState.title}</h3><div class="space-y-1 text-sm text-muted-foreground">`;
             for (const [key, value] of Object.entries(details)) { html += `<p><strong class="text-foreground">${key}:</strong> ${value}</p>`; }
             html += `</div>`;
             if (currentState.redeemable) { html += `<button id="redeemBtn" class="mt-6 w-full py-2.5 px-6 bg-danger text-white rounded-md hover:opacity-90 transition">Redeem Ticket</button>`; }
-            dom.resultContainer.innerHTML = html;
-            dom.resultContainer.classList.remove('hidden');
+
+            dom.modalBody.innerHTML = html;
+            dom.resultModal.classList.remove('hidden'); // Show the modal
+
             if (currentState.redeemable) { document.getElementById('redeemBtn').addEventListener('click', handleRedemption); }
         };
-        
+
         const handleVerification = async (e) => {
             if (e) e.preventDefault();
-            const bookingId = dom.bookingIdInput.value.trim();
+            const bookingId = dom.bookingIdInput.value.trim().toUpperCase(); // Standardize to uppercase
             if (!bookingId) { showMessage('Please enter a booking ID.', 'error'); return; }
             await stopScanning();
             dom.verifyBtn.disabled = true;
             dom.verifyBtn.textContent = 'Verifying...';
-            dom.resultContainer.classList.add('hidden');
             showMessage('Verifying ticket...', 'info');
             try {
                 const response = await fetch(`${GOOGLE_APP_SCRIPT_URL}?action=verifyTicket&bookingId=${encodeURIComponent(bookingId)}`);
                 const result = await response.json();
                 if (result.success) {
                     const details = { Email: result.email, Seats: result.seats, Status: result.status };
-                    sessionStorage.setItem('lastValidTicket', JSON.stringify(details)); // Store details for redemption
+                    sessionStorage.setItem('lastValidTicket', JSON.stringify(details));
                     if (result.status === 'Redeemed') { displayResult('redeemed', details); } else { displayResult('valid', details); }
                 } else { displayResult('invalid', { "Booking ID": bookingId, "Reason": result.message }); }
-            } catch (error) { showMessage(`Verification failed: ${error.message}.`, 'error');
+                showMessage(''); // Clear message after showing modal
+            } catch (error) {
+                showMessage(`Verification failed: ${error.message}.`, 'error');
             } finally { dom.verifyBtn.disabled = false; dom.verifyBtn.textContent = 'Verify Ticket'; }
         };
 
         const handleRedemption = async () => {
-            const bookingId = dom.bookingIdInput.value.trim();
+            const bookingId = dom.bookingIdInput.value.trim().toUpperCase();
             const redeemBtn = document.getElementById('redeemBtn');
             redeemBtn.disabled = true;
             redeemBtn.textContent = 'Redeeming...';
@@ -168,13 +219,26 @@
                 const response = await fetch(`${GOOGLE_APP_SCRIPT_URL}?action=redeemTicket&bookingId=${encodeURIComponent(bookingId)}`);
                 const result = await response.json();
                 if (result.success) {
+                    redeemBtn.textContent = 'Success!';
+                    redeemBtn.style.backgroundColor = 'hsl(var(--success))';
+
                     showMessage('Ticket redeemed successfully!', 'success');
-                    const details = { ...JSON.parse(sessionStorage.getItem('lastValidTicket')), Status: 'Redeemed' };
-                    displayResult('redeemed', details);
-                } else { showMessage(result.message, 'error'); redeemBtn.disabled = false; redeemBtn.textContent = 'Redeem Ticket'; }
-            } catch (error) { showMessage(`Redemption failed: ${error.message}.`, 'error'); }
+
+                    setTimeout(() => {
+                        closeModal();
+                    }, 1500);
+                } else {
+                    showMessage(result.message, 'error');
+                    redeemBtn.disabled = false;
+                    redeemBtn.textContent = 'Redeem Ticket';
+                }
+            } catch (error) {
+                showMessage(`Redemption failed: ${error.message}.`, 'error');
+                redeemBtn.disabled = false;
+                redeemBtn.textContent = 'Redeem Ticket';
+            }
         };
-        
+
         const tick = () => {
             if (dom.video.readyState === dom.video.HAVE_ENOUGH_DATA) {
                 const canvas = document.createElement('canvas');
@@ -184,9 +248,10 @@
                 context.drawImage(dom.video, 0, 0, canvas.width, canvas.height);
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
-                
+
                 if (code) {
-                    const idMatch = code.data.match(/Booking ID: ([a-zA-Z0-9-]+)/);
+                    // More flexible regex to find various booking ID formats
+                    const idMatch = code.data.match(/(?:Booking ID|ID|Ticket):\s*([a-zA-Z0-9-]+)/i);
                     if (idMatch && idMatch[1]) {
                         dom.bookingIdInput.value = idMatch[1];
                         stopScanning();
@@ -205,13 +270,13 @@
                 dom.videoContainer.classList.remove('hidden');
                 dom.stopScanBtn.classList.remove('hidden');
                 showMessage('Point camera at a QR code...', 'info');
-                scanInterval = setInterval(tick, 200); // Scan 5 times a second
+                scanInterval = setInterval(tick, 200);
             } catch (err) {
                 showMessage('Camera access denied. Please enable it in browser settings.', 'error');
                 dom.requestCameraBtn.classList.remove('hidden');
             }
         };
-        
+
         const stopScanning = () => {
             if (scanInterval) clearInterval(scanInterval);
             scanInterval = null;
@@ -228,7 +293,6 @@
             dom.manualContent.classList.add('hidden');
             dom.tabScan.classList.add('active');
             dom.tabManual.classList.remove('active');
-            dom.resultContainer.classList.add('hidden');
             showMessage('Click the button to start scanning.', 'info');
         });
 
@@ -238,7 +302,6 @@
             dom.manualContent.classList.remove('hidden');
             dom.tabScan.classList.remove('active');
             dom.tabManual.classList.add('active');
-            dom.resultContainer.classList.add('hidden');
             showMessage('Enter the Booking ID below.', 'info');
         });
 
@@ -246,8 +309,17 @@
         dom.stopScanBtn.addEventListener('click', stopScanning);
         dom.verificationForm.addEventListener('submit', handleVerification);
 
+        // Modal close functionality
+        dom.closeModalBtn.addEventListener('click', closeModal);
+        dom.resultModal.addEventListener('click', (e) => {
+            if (e.target === dom.resultModal) { // Close if clicked on the background overlay
+                closeModal();
+            }
+        });
+
         // Initial state
         dom.tabManual.click();
     </script>
 </body>
+
 </html>
