@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EUNOIA Ticket Verification</title>
+    <title>CINEFLIX Ticket Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
@@ -146,7 +146,6 @@
             video: document.getElementById('video'),
             requestCameraBtn: document.getElementById('requestCameraBtn'),
             stopScanBtn: document.getElementById('stopScanBtn'),
-            // Modal elements
             resultModal: document.getElementById('resultModal'),
             modalCard: document.getElementById('modalCard'),
             modalBody: document.getElementById('modalBody'),
@@ -164,7 +163,7 @@
 
         const closeModal = () => {
             dom.resultModal.classList.add('hidden');
-            dom.modalBody.innerHTML = ''; // Clear content
+            dom.modalBody.innerHTML = ''; 
         };
 
         const displayResult = (status, details) => {
@@ -183,14 +182,14 @@
             if (currentState.redeemable) { html += `<button id="redeemBtn" class="mt-6 w-full py-2.5 px-6 bg-danger text-white rounded-md hover:opacity-90 transition">Redeem Ticket</button>`; }
 
             dom.modalBody.innerHTML = html;
-            dom.resultModal.classList.remove('hidden'); // Show the modal
+            dom.resultModal.classList.remove('hidden');
 
             if (currentState.redeemable) { document.getElementById('redeemBtn').addEventListener('click', handleRedemption); }
         };
 
         const handleVerification = async (e) => {
             if (e) e.preventDefault();
-            const bookingId = dom.bookingIdInput.value.trim().toUpperCase(); // Standardize to uppercase
+            const bookingId = dom.bookingIdInput.value.trim().toUpperCase();
             if (!bookingId) { showMessage('Please enter a booking ID.', 'error'); return; }
             await stopScanning();
             dom.verifyBtn.disabled = true;
@@ -204,7 +203,7 @@
                     sessionStorage.setItem('lastValidTicket', JSON.stringify(details));
                     if (result.status === 'Redeemed') { displayResult('redeemed', details); } else { displayResult('valid', details); }
                 } else { displayResult('invalid', { "Booking ID": bookingId, "Reason": result.message }); }
-                showMessage(''); // Clear message after showing modal
+                showMessage('');
             } catch (error) {
                 showMessage(`Verification failed: ${error.message}.`, 'error');
             } finally { dom.verifyBtn.disabled = false; dom.verifyBtn.textContent = 'Verify Ticket'; }
@@ -250,7 +249,6 @@
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
 
                 if (code) {
-                    // More flexible regex to find various booking ID formats
                     const idMatch = code.data.match(/(?:Booking ID|ID|Ticket):\s*([a-zA-Z0-9-]+)/i);
                     if (idMatch && idMatch[1]) {
                         dom.bookingIdInput.value = idMatch[1];
@@ -309,15 +307,19 @@
         dom.stopScanBtn.addEventListener('click', stopScanning);
         dom.verificationForm.addEventListener('submit', handleVerification);
 
-        // Modal close functionality
         dom.closeModalBtn.addEventListener('click', closeModal);
         dom.resultModal.addEventListener('click', (e) => {
-            if (e.target === dom.resultModal) { // Close if clicked on the background overlay
+            if (e.target === dom.resultModal) {
                 closeModal();
             }
         });
 
-        // Initial state
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Backspace' && !dom.resultModal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
         dom.tabManual.click();
     </script>
 </body>
